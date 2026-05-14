@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lenni's Life Map - Life Map</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Gaegu:wght@300;400;700&family=Nanum+Pen+Script&family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #FFF8F0; --paper: #FFFCF7; --soft-pink: #F5E1D4; --golden: #D4A574; --coral: #E8947A;
+            --mint: #C1D5C4; --lavender: #D5CFE0; --warm-brown: #8B6F5C; --text-dark: #4A3830; --text-medium: #6B5D54;
+            --shadow-soft: 0 4px 20px rgba(139,111,92,0.12);
+            --tape-yellow: rgba(255,235,190,0.75); --tape-pink: rgba(245,210,200,0.75);
+            --tape-mint: rgba(200,225,210,0.75); --tape-lavender: rgba(210,200,225,0.75);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Noto Sans SC','Gowun Dodum',sans-serif;background:var(--cream);overflow:hidden;height:100vh;width:100vw;-webkit-tap-highlight-color:transparent;user-select:none;}
+        #app-container{position:relative;width:100%;height:100vh;overflow:hidden;}
+        .pages-wrapper{position:relative;width:100%;height:100%;transition:transform 0.8s cubic-bezier(0.45,0.05,0.2,0.99);will-change:transform;}
+        .pages-wrapper.page-2-active{transform:translateY(-100vh);}.pages-wrapper.page-3-active{transform:translateY(-200vh);}.pages-wrapper.page-4-active{transform:translateY(-300vh);}.pages-wrapper.page-5-active{transform:translateY(-400vh);}.pages-wrapper.page-6-active{transform:translateY(-500vh);}.pages-wrapper.page-7-active{transform:translateY(-600vh);}.pages-wrapper.page-8-active{transform:translateY(-700vh);}
+        .page{position:absolute;width:100%;height:100vh;top:0;left:0;display:flex;flex-direction:column;align-items:center;overflow:hidden;}
+        .page-1{justify-content:center;}
+        .page-2,.page-3,.page-4,.page-5,.page-6,.page-7{background:linear-gradient(180deg,#FFF8F0,#FFF3E9,#FEF0E4);overflow-y:auto;padding:20px 0 60px;}
+        .page-2{top:100vh;}.page-3{top:200vh;}.page-4{top:300vh;}.page-5{top:400vh;}.page-6{top:500vh;}.page-7{top:600vh;}.page-8{top:700vh;}
+        .language-switch{position:fixed;top:20px;right:20px;z-index:1000;width:40px;height:40px;border-radius:50%;background:rgba(255,250,245,0.9);backdrop-filter:blur(10px);border:1px solid rgba(200,170,140,0.3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;transition:all 0.3s;box-shadow:0 2px 10px rgba(139,111,92,0.15);}
+        .language-switch:hover{background:rgba(255,250,245,0.95);transform:scale(1.05);box-shadow:0 4px 15px rgba(139,111,92,0.2);}
+        .language-switch:active{transform:scale(0.95);}
+
+        #globe-container{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:auto;}
+        #globe-container canvas{display:block;}
+        .overlay{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:40px 24px 36px;}
+        .title-section{text-align:center;pointer-events:auto;}
+        .main-title{font-family:'Gowun Batang','Noto Serif SC',serif;font-size:clamp(2rem,4.5vw,3.2rem);font-weight:700;color:var(--text-dark);letter-spacing:0.04em;line-height:1.2;margin-bottom:6px;text-shadow:0 2px 8px rgba(200,170,140,0.2);animation:titleFloat 4s ease-in-out infinite;}
+        @keyframes titleFloat{0%,100%{transform:translateY(0);}30%{transform:translateY(-4px);}60%{transform:translateY(-1px);}}
+        .subtitle-cn{font-family:'Noto Serif SC','Gowun Batang',serif;font-size:clamp(0.85rem,1.8vw,1.15rem);font-weight:400;color:var(--text-medium);letter-spacing:0.12em;margin-bottom:4px;}
+        .subtitle-en{font-family:'Gowun Dodum','Noto Sans SC',sans-serif;font-size:clamp(0.7rem,1.3vw,0.9rem);font-weight:300;color:#9B8B7E;letter-spacing:0.06em;font-style:italic;}
+        .divider-dot{display:inline-block;width:4px;height:4px;background:var(--golden);border-radius:50%;margin:0 6px;vertical-align:middle;opacity:0.6;}
+        .hint-section{pointer-events:auto;text-align:center;margin-bottom:10px;display:flex;flex-direction:column;align-items:center;gap:8px;}
+        .hint-text{font-family:'Gowun Dodum','Noto Sans SC',sans-serif;font-size:clamp(0.9rem,1.4vw,1.05rem);font-weight:400;color:var(--warm-brown);background:rgba(255,250,245,0.75);backdrop-filter:blur(8px);display:inline-block;padding:12px 28px;border-radius:30px;letter-spacing:0.05em;box-shadow:0 2px 12px rgba(139,111,92,0.12);border:1px solid rgba(200,170,140,0.22);}
+        .order-hint{font-family:'Gowun Dodum','Noto Sans SC',sans-serif;font-size:0.78rem;color:var(--text-medium);background:rgba(255,250,245,0.6);backdrop-filter:blur(4px);display:inline-block;padding:6px 18px;border-radius:20px;letter-spacing:0.08em;box-shadow:0 1px 6px rgba(139,111,92,0.1);}
+
+        /* 首页标签样式，使用hidden-label控制 */
+        .country-label{
+            position:absolute;pointer-events:none;font-family:'Gowun Dodum','Noto Sans SC',sans-serif;
+            font-size:0.78rem;font-weight:500;color:var(--text-dark);
+            background:rgba(255,250,245,0.92);backdrop-filter:blur(10px);
+            padding:7px 16px;border-radius:20px;white-space:nowrap;
+            box-shadow:0 3px 16px rgba(139,111,92,0.22);transition:opacity 0.35s;z-index:25;
+            letter-spacing:0.04em;border:1px solid rgba(200,170,140,0.35);
+            opacity:0;
+        }
+        .country-label.hidden-label{opacity:0;pointer-events:none;}
+        .country-label:not(.hidden-label){opacity:1;}
+        .label-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px;vertical-align:middle;animation:labelDotPulse 2s infinite;}
+        .label-dot.germany{background:#E8947A;}.label-dot.france{background:#D5A8C9;}.label-dot.switzerland{background:#A8C9B8;}.label-dot.spain{background:#F0C78E;}.label-dot.china{background:#E8B4A0;}
+        @keyframes labelDotPulse{0%,100%{transform:scale(1);opacity:0.8;}50%{transform:scale(1.6);opacity:1;}}
+        .order-num{display:inline-block;background:rgba(180,130,100,0.2);color:var(--text-dark);border-radius:50%;width:18px;height:18px;text-align:center;line-height:18px;font-size:0.65rem;font-weight:700;margin-right:6px;}
+
+        .page-inner{width:100%;max-width:1000px;padding:0 30px 40px;position:relative;}
+        .journal-paper{background:var(--paper);border-radius:40px 40px 30px 30px;padding:40px 25px 45px;box-shadow:0 8px 30px rgba(160,120,90,0.15);border:1px solid rgba(210,180,150,0.35);margin-bottom:25px;position:relative;background-image:repeating-linear-gradient(transparent,transparent 27px,rgba(200,180,150,0.1) 28px);}
+        .journal-paper::before{content:'';position:absolute;left:20px;top:15px;bottom:15px;width:10px;background:radial-gradient(circle 4px,rgba(180,150,120,0.25) 30%,transparent 35%) repeat-y;background-size:10px 18px;z-index:2;pointer-events:none;}
+        .page-header{text-align:center;margin-bottom:35px;position:relative;}
+        .page-title{font-family:'Gaegu',cursive;font-size:2.8rem;color:var(--text-dark);display:inline-block;background:rgba(255,245,230,0.7);padding:5px 28px;border-radius:50px;transform:rotate(-1.5deg);box-shadow:2px 4px 10px rgba(170,140,110,0.12);position:relative;}
+        .page-title::after{font-size:2rem;position:absolute;right:-30px;top:-10px;animation:floatLittle 3s infinite;}
+        .page-title.forest::after{content:"🌲";}.page-title.alps::after{content:"🏔️";}.page-title.france::after{content:"🥐";}.page-title.spain::after{content:"🌅";}.page-title.china::after{content:"🏮";}.page-title.travel::after{content:"🚅";}
+        @keyframes floatLittle{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+        .back-btn{display:inline-block;margin-top:25px;padding:10px 30px;background:rgba(230,200,180,0.3);border:1px solid rgba(180,150,130,0.4);border-radius:40px;font-family:'Gowun Dodum',sans-serif;font-size:0.9rem;color:var(--warm-brown);cursor:pointer;transition:0.3s;backdrop-filter:blur(6px);transform:rotate(-0.5deg);}
+        .back-btn:hover{background:rgba(230,200,180,0.5);transform:translateY(-2px);box-shadow:0 4px 15px rgba(180,150,130,0.2);}
+        .plane-trigger,.train-trigger,.cake-trigger{position:absolute;bottom:20px;right:30px;font-size:2.8rem;cursor:pointer;z-index:10;animation:floatPlane 2s ease-in-out infinite;filter:drop-shadow(0 4px 6px rgba(0,0,0,0.1));transition:transform 0.3s;pointer-events:auto;}
+        .plane-trigger:hover,.train-trigger:hover,.cake-trigger:hover{transform:scale(1.15);animation:none;}
+        @keyframes floatPlane{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+
+        /* 德国/瑞士/法国/西班牙 原始卡片样式保持 */
+        .scrapbook-layout{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:28px;margin:10px 0;}
+        .scrap-item{background:#fffcf5;border-radius:12px;box-shadow:0 6px 18px rgba(150,120,100,0.15);transition:all 0.3s;position:relative;border:1px solid rgba(210,180,150,0.35);}
+        .scrap-item:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(150,120,100,0.22);z-index:5;}
+        .item-1{width:46%;transform:rotate(-2deg);}.item-2{width:42%;transform:rotate(2.5deg);margin-top:15px;}.item-3{width:38%;transform:rotate(-1.2deg);margin-top:-10px;}.item-4{width:44%;transform:rotate(1.8deg);margin-top:20px;}.item-5{width:72%;transform:rotate(-0.5deg);}
+        .photo-frame{width:100%;aspect-ratio:4/3;background:#fdf7f0;border-radius:8px;display:flex;align-items:center;justify-content:center;border:2px dashed rgba(190,160,130,0.5);overflow:hidden;}
+        .photo-frame img{width:100%;height:100%;object-fit:cover;display:block;}
+        .photo-placeholder{font-size:2.6rem;color:#C4A882;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;}
+        .photo-placeholder span{font-size:0.65rem;background:rgba(255,250,245,0.8);padding:2px 12px;border-radius:20px;color:var(--warm-brown);}
+        .page-desc{font-family:'Gowun Dodum','Noto Sans SC',sans-serif;font-size:0.9rem;color:var(--text-medium);margin-top:4px;margin-bottom:16px;text-align:center;}
+        .china-poem-full{font-family:'Nanum Pen Script','Gaegu',cursive;color:var(--text-medium);line-height:1.8;font-size:1rem;text-align:center;margin-top:20px;padding:16px;background:rgba(255,255,255,0.8);border-radius:12px;max-width:600px;margin-left:auto;margin-right:auto;margin-bottom:20px;}
+        .scrap-content{font-family:'Gaegu',cursive,'Noto Sans SC',sans-serif;color:var(--text-medium);line-height:1.8;font-size:1rem;text-align:center;}
+        .scrap-content strong{font-family:'Gaegu',cursive;display:block;font-size:1.15rem;color:var(--text-dark);margin-bottom:6px;}
+        .tape-piece{position:absolute;height:14px;background:var(--tape-yellow);top:-7px;left:15px;width:55px;transform:rotate(-4deg);border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,0.04);backdrop-filter:blur(3px);z-index:2;}
+        .tape-piece.pink{background:var(--tape-pink);left:auto;right:18px;transform:rotate(3deg);}
+        .tape-piece.mint{background:var(--tape-mint);top:auto;bottom:-7px;left:22px;transform:rotate(-2deg);}
+        .tape-piece.lavender{background:var(--tape-lavender);left:auto;right:18px;transform:rotate(3deg);top:-7px;}
+
+        .swiss-single-card{width:85%;max-width:600px;background:#fffcf7;border-radius:20px;padding:18px 18px 28px;box-shadow:0 8px 28px rgba(150,120,100,0.18);border:1px solid rgba(210,180,150,0.35);transform:rotate(0.8deg);position:relative;margin:0 auto;}
+        .swiss-photo-frame{width:100%;aspect-ratio:4/3;background:#fdf7f0;border-radius:12px;display:flex;align-items:center;justify-content:center;border:2px dashed rgba(190,160,130,0.5);overflow:hidden;margin-bottom:20px;}
+        .swiss-photo-frame img{width:100%;height:100%;object-fit:cover;display:block;}
+        .swiss-poem{padding:8px 10px;font-family:'Nanum Pen Script','Gaegu',cursive;color:var(--text-medium);line-height:1.8;font-size:1rem;text-align:center;}
+        .swiss-poem strong{font-family:'Gaegu',cursive;display:block;font-size:1.3rem;color:var(--text-dark);margin-bottom:10px;}
+
+        .france-triple-card{width:90%;max-width:650px;background:#fffcf7;border-radius:20px;padding:18px 18px 28px;box-shadow:0 8px 28px rgba(150,120,100,0.18);border:1px solid rgba(210,180,150,0.35);transform:rotate(-0.5deg);position:relative;margin:0 auto;}
+        .france-photos-row{display:flex;gap:12px;margin-bottom:18px;}
+        .france-photo-box{flex:1;aspect-ratio:1/1;background:#fdf7f0;border-radius:10px;display:flex;align-items:center;justify-content:center;border:2px dashed rgba(190,160,130,0.5);font-size:2.2rem;color:#C4A882;overflow:hidden;}
+        .france-photo-box img{width:100%;height:100%;object-fit:cover;display:block;}
+        .france-poem{padding:8px 10px;font-family:'Nanum Pen Script','Gaegu',cursive;color:var(--text-medium);line-height:1.8;font-size:1rem;text-align:center;}
+        .france-poem strong{font-family:'Gaegu',cursive;display:block;font-size:1.3rem;color:var(--text-dark);margin-bottom:10px;}
+
+        .spain-double-section{display:flex;flex-direction:column;gap:28px;align-items:center;width:100%;max-width:700px;margin:0 auto;}
+        .spain-card{width:95%;background:#fffcf7;border-radius:20px;padding:18px 18px 28px;box-shadow:0 8px 28px rgba(150,120,100,0.18);border:1px solid rgba(210,180,150,0.35);position:relative;}
+        .spain-card.card-travel{transform:rotate(-0.8deg);}.spain-card.card-chess{transform:rotate(0.6deg);}
+        .spain-photos-row{display:flex;gap:12px;margin-bottom:18px;}
+        .spain-photo-box{flex:1;aspect-ratio:1/1;background:#fdf7f0;border-radius:10px;display:flex;align-items:center;justify-content:center;border:2px dashed rgba(190,160,130,0.5);font-size:2.2rem;color:#C4A882;overflow:hidden;}
+        .spain-photo-box img{width:100%;height:100%;object-fit:cover;display:block;}
+        .spain-poem{padding:8px 10px;font-family:'Nanum Pen Script','Gaegu',cursive;color:var(--text-medium);line-height:1.8;font-size:1rem;text-align:center;}
+        .spain-poem strong{font-family:'Gaegu',cursive;display:block;font-size:1.3rem;color:var(--text-dark);margin-bottom:10px;}
+        .chess-book-photo{width:100%;aspect-ratio:3/2;background:#fdf7f0;border-radius:12px;display:flex;align-items:center;justify-content:center;border:2px dashed rgba(190,160,130,0.5);overflow:hidden;margin-bottom:18px;font-size:3rem;color:#C4A882;}
+        .chess-achievement{padding:8px 10px;font-family:'Nanum Pen Script','Gaegu',cursive;color:var(--text-medium);line-height:1.8;font-size:1rem;text-align:center;}
+        .chess-achievement strong{font-family:'Gaegu',cursive;display:block;font-size:1.3rem;color:var(--text-dark);margin-bottom:10px;}
+
+        .china-academic-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px 25px;max-width:850px;margin:0 auto;}
+        .china-academic-grid .stage-card:nth-child(odd){transform:rotate(-0.8deg) translateY(0);}
+        .china-academic-grid .stage-card:nth-child(even){transform:rotate(0.6deg) translateY(28px);}
+        .stage-card{background:#fffcf5;border-radius:18px;padding:14px 14px 20px;box-shadow:0 7px 24px rgba(150,120,100,0.14);border:1px solid rgba(210,180,150,0.3);transition:all 0.35s;display:flex;flex-direction:column;}
+        .stage-card:hover{transform:translateY(-4px) rotate(0deg)!important;box-shadow:0 12px 30px rgba(150,120,100,0.22);z-index:3;}
+        .stage-badge{position:absolute;top:-12px;left:14px;background:#fffcf5;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-family:'Gaegu',cursive;font-size:1.1rem;font-weight:700;color:var(--text-dark);box-shadow:0 2px 8px rgba(0,0,0,0.08);border:1.5px solid rgba(200,170,140,0.35);z-index:3;}
+        .stage-main-photo{width:100%;aspect-ratio:16/9;background:#fdf7f0;border-radius:10px;display:flex;align-items:center;justify-content:center;border:2px dashed rgba(190,160,130,0.5);margin-bottom:10px;font-size:2.6rem;color:#C4A882;position:relative;overflow:hidden;}
+        .stage-main-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+        .stage-main-photo .photo-label{position:absolute;bottom:6px;right:10px;font-size:0.6rem;background:rgba(255,250,245,0.8);padding:2px 10px;border-radius:14px;color:var(--warm-brown);}
+        .stage-side-photos{display:flex;gap:8px;margin-bottom:12px;}
+        .stage-side-photo{flex:1;aspect-ratio:1/1;background:#fdf7f0;border-radius:8px;display:flex;align-items:center;justify-content:center;border:2px dashed rgba(190,160,130,0.45);overflow:hidden;}
+        .stage-side-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+        .stage-poem{padding:4px 6px;font-family:'Nanum Pen Script','Gaegu',cursive;color:var(--text-medium);line-height:1.7;font-size:0.85rem;}
+        .stage-poem strong{font-family:'Gaegu',cursive;display:block;font-size:1.05rem;color:var(--text-dark);margin-bottom:4px;}
+        .stage-poem .uni-name{display:inline-block;background:rgba(212,165,116,0.12);padding:1px 8px;border-radius:10px;font-size:0.75rem;color:var(--warm-brown);margin-bottom:3px;}
+
+        .photo-wall{display:grid;grid-template-columns:repeat(6,1fr);gap:20px 25px;margin:20px 0 30px;position:relative;}
+        .city-card{background:#fffcf5;border-radius:10px;padding:6px 6px 8px;box-shadow:0 5px 15px rgba(150,120,100,0.15);border:1px solid rgba(210,180,150,0.4);transition:all 0.3s ease;position:relative;display:flex;flex-direction:column;align-items:stretch;}
+        .city-card:hover{transform:translateY(-5px) rotate(0deg) !important;box-shadow:0 12px 25px rgba(150,120,100,0.25);z-index:5;}
+        .city-card .card-img{width:100%;aspect-ratio:4/3;background:#fdf7f0;border-radius:8px;display:block;border:1px dashed rgba(190,160,130,0.6);overflow:hidden;}
+        .city-card .card-img img{width:100%;height:100%;object-fit:cover;display:block;}
+        .city-card .card-name{font-family:'Gaegu',cursive;font-size:0.75rem;margin-top:6px;color:var(--text-dark);text-align:center;letter-spacing:0.03em;}
+        .travel-summary{background:rgba(255,255,255,0.8);border-radius:20px;padding:20px;margin-top:30px;font-family:'Nanum Pen Script',cursive;color:var(--text-medium);line-height:1.8;font-size:1rem;text-align:center;max-width:800px;margin-left:auto;margin-right:auto;}
+
+        .fly-overlay{position:fixed;top:0;left:0;width:100%;height:100vh;z-index:9999;pointer-events:none;opacity:0;transition:opacity 0.5s;}
+        .fly-overlay.active{opacity:1;pointer-events:auto;}
+        .fly-sky{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center;background-color:#d4e0e8;}
+        .fly-sky::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(180deg,rgba(255,248,240,0.55),rgba(255,245,235,0.65),rgba(240,230,220,0.75));}
+        .fly-plane-wrapper{position:absolute;top:50%;left:15%;transform:translate(-50%,-50%);z-index:10;transition:left 3.5s cubic-bezier(0.35,0,0.65,1),top 3.5s cubic-bezier(0.25,0.1,0.25,1);animation:planeBob 0.8s infinite;}
+        .fly-overlay.active .fly-plane-wrapper{left:82%;top:28%;}
+        @keyframes planeBob{0%,100%{transform:translate(-50%,-50%) translateY(0);}50%{transform:translate(-50%,-50%) translateY(-12px);}}
+        .mini-plane{font-size:4.5rem;filter:drop-shadow(0 8px 12px rgba(0,0,0,0.25));display:block;text-align:center;}
+        .kid-on-plane{font-size:2.2rem;display:block;text-align:center;margin-top:-22px;margin-left:10px;animation:kidWave 0.6s infinite alternate;}
+        @keyframes kidWave{from{transform:rotate(-5deg);}to{transform:rotate(5deg);}}
+        .fly-text{position:absolute;bottom:18%;left:50%;transform:translateX(-50%);font-family:'Gaegu',cursive;font-size:1.5rem;color:#4A4A4A;text-align:center;opacity:0;transition:opacity 1s 1s;text-shadow:0 1px 4px rgba(255,255,255,0.8);background:rgba(255,255,255,0.6);padding:8px 24px;border-radius:30px;backdrop-filter:blur(6px);z-index:20;}
+        .fly-overlay.active .fly-text{opacity:1;}
+
+        /* 生日页样式（保证火焰可点，烟花同步） */
+        .birthday-scene{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2;width:100%;height:100%;gap:4vh;}
+        .birthday-title{position:absolute;top:8vh;left:50%;transform:translateX(-50%);font-family:'Gaegu',cursive;font-size:clamp(2.2rem,5.5vw,3.6rem);color:#B07060;text-align:center;letter-spacing:0.06em;text-shadow:0 2px 12px rgba(180,120,100,0.25);animation:titleGlow 3s infinite;z-index:5;}
+        @keyframes titleGlow{0%,100%{text-shadow:0 2px 12px rgba(180,120,100,0.25);}50%{text-shadow:0 4px 24px rgba(200,140,110,0.5),0 0 40px rgba(255,200,160,0.3);}}
+        .click-hint{font-family:'Gaegu',cursive;font-size:1.05rem;color:#C08070;white-space:nowrap;animation:hintFloat 2s infinite;pointer-events:none;z-index:30;}
+        @keyframes hintFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+        .cake-wrapper{position:relative;z-index:3;transition:all 0.8s cubic-bezier(0.68,-0.55,0.27,1.55);display:flex;flex-direction:column;align-items:center;}
+        .cake-wrapper.exploded{transform:scale(0.3);opacity:0;pointer-events:none;}
+        .cake-plate{width:300px;height:24px;background:linear-gradient(180deg,#F7F0E8,#E8DDD4,#DDD0C5);border-radius:50%;margin:-8px auto 0;box-shadow:0 8px 24px rgba(150,120,100,0.22);}
+        .cake-tier{width:240px;height:80px;background:linear-gradient(180deg,#FFFDF9,#FFF9F4,#FFF5EC,#FDF0E4,#F8E8D8);border-radius:22px 22px 8px 8px;margin:0 auto;position:relative;box-shadow:0 8px 24px rgba(150,120,100,0.15),inset 0 2px 0 rgba(255,255,255,0.8);}
+        .cake-tier.middle{width:190px;height:72px;border-radius:20px 20px 8px 8px;margin-top:-10px;}
+        .cake-tier.top{width:140px;height:62px;border-radius:18px 18px 8px 8px;margin-top:-10px;overflow:visible;}
+        .cream-stripe{position:absolute;left:-2px;right:-2px;height:10px;background:linear-gradient(180deg,rgba(255,245,235,0.9),#FFF0E0,#FDE0D0,#FFF0E0,rgba(255,245,235,0.9));border-radius:5px;z-index:4;}
+        .cream-stripe.bottom{top:22px;}.cream-stripe.mid{top:18px;}.cream-stripe.top-stripe{top:14px;}
+        .cherry{position:absolute;width:22px;height:22px;background:radial-gradient(circle at 35% 35%,#FF7B7B,#C0392B);border-radius:50%;box-shadow:0 3px 8px rgba(0,0,0,0.2);z-index:10;top:-32px;left:18px;}
+        .cherry.two{left:auto;right:18px;}
+        .candle-holder{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);z-index:25;display:flex;flex-direction:column;align-items:center;margin-bottom:-16px;pointer-events:none;}
+        .candle-flame{width:26px;height:40px;background:radial-gradient(ellipse at 50% 60%,#FFFCE0,#FFE088,#FFB840,#FF8C20,transparent);border-radius:50% 50% 35% 35%;margin-bottom:-4px;animation:flicker 0.3s infinite alternate;box-shadow:0 0 20px rgba(255,180,60,0.7),0 0 45px rgba(255,150,30,0.4);cursor:pointer;pointer-events:auto;}
+        @keyframes flicker{0%{transform:scaleY(1) scaleX(1) rotate(-1deg);}50%{transform:scaleY(0.95) scaleX(1.05) rotate(-0.5deg);}100%{transform:scaleY(1) scaleX(1) rotate(-1deg);}}
+        .final-text{position:absolute;bottom:16vh;left:50%;transform:translateX(-50%);font-family:'Cormorant Garamond','Georgia',serif;font-size:clamp(0.95rem,1.6vw,1.25rem);font-weight:500;color:#4A3B32;text-align:center;line-height:1.8;opacity:0;transition:opacity 1.5s 0.8s;z-index:3;max-width:680px;width:90%;background:rgba(255,255,255,0.75);padding:22px 28px;border-radius:28px;backdrop-filter:blur(10px);pointer-events:none;font-style:italic;}
+        .final-text.visible{opacity:1;}
+        .final-text em{font-weight:600;font-style:normal;display:block;margin-top:10px;}
+        .page-8 .back-btn{position:absolute;bottom:3vh;left:50%;transform:translateX(-50%);}
+        .confetti-piece{position:fixed;width:12px;height:12px;border-radius:3px;z-index:10000;pointer-events:none;opacity:0;}
+        @keyframes confettiFall{0%{opacity:1;transform:translate(0,0) rotate(0deg) scale(1);}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(0.3);}}
+        #fireworkCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:9998;pointer-events:none;}
+
+        @media(max-width:700px){.photo-wall{grid-template-columns:repeat(4,1fr);}.china-academic-grid{grid-template-columns:1fr;}.scrap-item{width:85%!important;transform:rotate(0deg)!important;margin-top:0!important;}}
+        @media(max-width:500px){.photo-wall{grid-template-columns:repeat(3,1fr);}.cake-plate{width:250px;}.cake-tier{width:200px;height:68px;}.cake-tier.middle{width:160px;height:60px;}.cake-tier.top{width:120px;height:52px;}}
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <div class="language-switch" id="languageSwitch" title="切换到中文">中</div>
+        <div class="pages-wrapper" id="pagesWrapper">
+            <!-- 首页：地球（标签已修复） -->
+            <div class="page page-1" id="page1">
+                <div id="globe-container"></div>
+                <div class="overlay">
+                    <div class="title-section"><h1 class="main-title">Lenni的人生地图</h1><p class="subtitle-cn">探索我的世界足迹</p><p class="subtitle-en">Explore My World Footprints</p></div>
+                    <div class="hint-section"><p class="hint-text">点击地球上的标记开始探索</p><p class="order-hint">建议按时间顺序游览</p></div>
+                </div>
+                <div class="country-label hidden-label" id="label-germany"><span class="order-num">①</span><span class="label-dot germany"></span>Germany</div>
+                <div class="country-label hidden-label" id="label-switzerland"><span class="order-num">②</span><span class="label-dot switzerland"></span>Switzerland</div>
+                <div class="country-label hidden-label" id="label-france"><span class="order-num">③</span><span class="label-dot france"></span>France</div>
+                <div class="country-label hidden-label" id="label-spain"><span class="order-num">④</span><span class="label-dot spain"></span>Spain</div>
+                <div class="country-label hidden-label" id="label-china"><span class="order-num">⑤</span><span class="label-dot china"></span>China</div>
+            </div>
+
+            <!-- Germany Page -->
+            <div class="page page-2" id="page2"><div class="page-inner"><div class="journal-paper"><div class="page-header"><h2 class="page-title forest germany-title">德国 · 学术之旅</h2></div><div class="scrapbook-layout">
+                <div class="scrap-item item-1"><div class="tape-piece"></div><div class="photo-frame"><img src="assets/images/germany-swing.jpg" alt="Lenni on a swing"></div><div class="scrap-content"><strong>On the Swing</strong>You pointed up at the sky from your little swing,<br>as if telling the whole world:<br>One day, I'll go and see every place.</div></div>
+                <div class="scrap-item item-2"><div class="tape-piece pink"></div><div class="photo-frame"><img src="assets/images/germany-family.jpg" alt="Family photo"></div><div class="scrap-content"><strong>Home is People</strong>Surrounded by the ones who love you most,<br>you carry this warmth wherever you go.<br>Home is not just a place —<br>it's the people who stay.</div></div>
+                <div class="scrap-item item-3"><div class="tape-piece mint"></div><div class="photo-frame"><img src="assets/images/germany-room.jpg" alt="Quiet room"></div><div class="scrap-content"><strong>Soft Corners</strong>Soft light fills every corner,<br>holding your smallest, sweetest memories.<br>This is where your heart<br>always feels at peace.</div></div>
+                <div class="scrap-item item-4"><div class="tape-piece"></div><div class="photo-frame"><img src="assets/images/germany-rain.jpg" alt="Streets in rain"></div><div class="scrap-content"><strong>Where Stories Begin</strong>Quiet streets, gentle rain,<br>the place where your story began.<br>From here, you walked<br>toward the big, wide world.</div></div>
+                <div class="scrap-item item-5"><div class="tape-piece pink"></div><div class="photo-frame"><img src="assets/images/germany-mist.jpg" alt="Morning mist outside"></div><div class="scrap-content"><strong>Misty Morning</strong>Misty trees outside the window,<br>soft and quiet like a dream.<br>Even then, you knew<br>life held wonderful things ahead.</div></div>
+            </div><div class="germany-poem" style="font-family:'Nanum Pen Script','Gaegu',cursive;color:var(--text-medium);line-height:1.8;font-size:1rem;text-align:center;margin-top:20px;padding:16px;background:rgba(255,255,255,0.8);border-radius:12px;max-width:600px;margin-left:auto;margin-right:auto;">在莱茵河畔的古堡中，<br>我追寻着知识的足迹，<br>每一页书卷都承载着梦想，<br>每一堂课都点亮着未来。</div><div class="plane-trigger" id="planeToSwiss">✈️</div></div><button class="back-btn" id="backFromGermany">← Back to Earth</button></div></div>
+
+            <!-- Switzerland Page -->
+            <div class="page page-3" id="page3"><div class="page-inner"><div class="journal-paper"><div class="page-header"><h2 class="page-title alps switzerland-title">瑞士 · 阿尔卑斯山</h2></div><div class="swiss-single-card"><div class="tape-piece"></div><div class="tape-piece pink"></div><div class="swiss-photo-frame"><img src="assets/images/switzerland-alps.jpg" alt="Lenni on the Alps"></div><div class="swiss-poem switzerland-poem"><strong>Switzerland Internship:<br>Your AI Adventure ✨</strong>You traded hometown mist for Swiss sunlight,<br>tucking your love for code right into your pocket.<br>At the company, you wove AI into contract reviews—<br>turning tedious work into something sharp, something new.<br><br>Colleagues smiled at your bright ideas,<br>spotting the future in your lines of code.<br>Years later, that small internship spark<br>bloomed into a real partnership, steady and bold.<br><br>From a curious intern in that neon shirt,<br>to a trusted partner turning ideas into impact—<br>Switzerland didn't just give you that castle view.<br>It gave you the first chapter of your big tech story.</div></div><div class="plane-trigger" id="planeToFrance">✈️</div></div><button class="back-btn" id="backFromSwiss">← Back to Earth</button></div></div>
+
+            <!-- France Page -->
+            <div class="page page-4" id="page4"><div class="page-inner"><div class="journal-paper"><div class="page-header"><h2 class="page-title france france-title">法国 · 浪漫之都</h2></div><div class="france-triple-card"><div class="tape-piece"></div><div class="tape-piece pink"></div><div class="france-photos-row"><div class="france-photo-box"><img src="assets/images/france-baking.jpg" alt="Baking in France"></div><div class="france-photo-box"><img src="assets/images/france-class.jpg" alt="French class"></div><div class="france-photo-box"><img src="assets/images/france-canals.jpg" alt="Golden canals"></div></div><div class="france-poem france-poem"><strong>Your French Days ✨</strong>You wandered alone through sunlit French streets,<br>where the canals glowed gold and the mountains hummed soft.<br>You fell in love with baking cookies,<br>kneading dough until your thumb was sore,<br>and snapping endless selfies with your chocolate chips —<br>each one a little celebration of joy.<br><br>You didn't just sightsee, though.<br>You sat in French classrooms,<br>learning the language of the place you'd grown to love,<br>one word, one sentence, one "bonjour" at a time.<br><br>France gave you more than pretty views and warm cookies.<br>It gave you a new voice,<br>a new hobby,<br>and a heart that felt a little more at home in the world.</div></div><div class="plane-trigger" id="planeToSpain">✈️</div></div><button class="back-btn" id="backFromFrance">← Back to Earth</button></div></div>
+
+            <!-- Spain Page -->
+            <div class="page page-5" id="page5"><div class="page-inner"><div class="journal-paper"><div class="page-header"><h2 class="page-title spain spain-title">西班牙 · 热情国度</h2></div><div class="spain-double-section"><div class="spain-card card-travel"><div class="tape-piece"></div><div class="tape-piece pink"></div><div class="spain-photos-row"><div class="spain-photo-box"><img src="assets/images/spain-gaudi.jpg" alt="Gaudí's Night"></div><div class="spain-photo-box"><img src="assets/images/spain-class.jpg" alt="Spanish class"></div><div class="spain-photo-box"><img src="assets/images/spain-streets.jpg" alt="Golden streets"></div></div><div class="spain-poem spain-poem"><strong>Your Spanish Days ✨</strong>You wandered Barcelona's glowing nights,<br>where Gaudí's dreamlike buildings lit up the dark.<br>By day, you learned Spanish, laughed with new friends,<br>and let the city's golden light seep into your bones.<br>You fell in love with every corner,<br>even vowing you'd return here one day to stay.</div></div><div class="spain-card card-chess"><div class="tape-piece lavender"></div><div class="tape-piece mint"></div><div class="chess-book-photo"><img src="assets/images/spain-chess-book.png" alt="Chess Puzzle Book"></div><div class="chess-achievement"><strong>Your Chess Puzzle Book 🎯</strong>Long before or somewhere along your journey,<br>your teen curiosity bloomed into something extraordinary.<br>From building an AI to crafting over 20 million chess puzzles,<br>to seeing them published as a 5-star book —<br>you turned quiet late nights<br>into something even masters admire.</div></div></div><div class="plane-trigger" id="planeToChina">✈️</div></div><button class="back-btn" id="backFromSpain">← Back to Earth</button></div></div>
+
+            <!-- China Academic Page -->
+            <div class="page page-6" id="page6"><div class="page-inner"><div class="journal-paper"><div class="page-header"><h2 class="page-title china china-title">中国 · 家乡</h2></div><div class="china-academic-grid">
+                <div class="stage-card"><div class="stage-badge">01</div><div class="tape-piece"></div><div class="stage-main-photo"><img src="assets/images/ecust.jpg" alt="East China University of Science and Technology"></div><div class="stage-side-photos"><div class="stage-side-photo"><img src="assets/images/ecust-friends.jpg" alt="ECUST friends"></div><div class="stage-side-photo"><img src="assets/images/ecust-campus.jpg" alt="ECUST campus"></div></div><div class="stage-poem stage-poem-1"><strong>East China University of Science and Technology</strong><span class="uni-name">华东理工大学</span><br>You stepped into Shanghai's bustle,<br>where friendships bloomed fast, and love found you too.<br>Your China story began here,<br>bright and warm, full of new firsts.</div></div>
+                <div class="stage-card"><div class="stage-badge">02</div><div class="tape-piece pink"></div><div class="stage-main-photo"><img src="assets/images/fudan.jpg" alt="Fudan University"></div><div class="stage-side-photos"><div class="stage-side-photo"><img src="assets/images/fudan-class.png" alt="Fudan class"></div><div class="stage-side-photo"><img src="assets/images/fudan-summer.jpg" alt="Tsinghua summer school"></div></div><div class="stage-poem stage-poem-2"><strong>Fudan University</strong><span class="uni-name">复旦大学</span><br>You kept building chess puzzles with AI,<br>turning millions of moves into three more books.<br>At Tsinghua's summer school, you studied LLMs,<br>and left with a quiet dream rooted in the campus light.</div></div>
+                <div class="stage-card"><div class="stage-badge">03</div><div class="tape-piece mint"></div><div class="stage-main-photo"><img src="assets/images/nju.jpg" alt="Nanjing University"></div><div class="stage-side-photos"><div class="stage-side-photo"><img src="assets/images/nju-couple.jpg" alt="NJU couple"></div><div class="stage-side-photo"><img src="assets/images/nju-scenery.jpg" alt="NJU scenery"></div></div><div class="stage-poem stage-poem-3"><strong>Nanjing University</strong><span class="uni-name">南京大学</span><br>You and your love settled into a little nest,<br>exploring China's rivers and hills together.<br>Every view felt brighter with her beside you,<br>and every memory glowed like sunlight on water.</div></div>
+                <div class="stage-card"><div class="stage-badge">04</div><div class="tape-piece lavender"></div><div class="stage-main-photo"><img src="assets/images/tsinghua.jpg" alt="Tsinghua University" style="object-position: top;"></div><div class="stage-side-photos"><div class="stage-side-photo"><img src="assets/images/tsinghua-lab.jpg" alt="Tsinghua lab"></div><div class="stage-side-photo"><img src="assets/images/tsinghua-collab.jpg" alt="Tsinghua collaboration"></div></div><div class="stage-poem china-poem stage-poem-4"><strong>Tsinghua University</strong><span class="uni-name">清华大学</span><br>You launched a research project backed by the school,<br>built robots with your team,<br>and turned late-night brainstorming into a partnership.<br>Tsinghua didn't just give you knowledge —<br>it gave you the space to build something new.</div></div>
+            </div><div class="china-poem-full">长城见证了历史的长河，<br>故宫藏着帝王的秘密，<br>长江黄河孕育了华夏文明，<br>这里是我的根，我的魂。</div><div class="train-trigger" id="trainToTravel">🚅</div></div><button class="back-btn" id="backFromChina">← Back to Earth</button></div></div>
+
+            <!-- China Travel Page -->
+            <div class="page page-7" id="page7"><div class="page-inner"><div class="journal-paper"><div class="page-header"><h2 class="page-title travel travel-title">旅行足迹</h2><p class="page-desc travel-desc">探索世界的精彩瞬间</p></div><div class="photo-wall" id="photoWall"></div><div class="travel-summary"><strong>Your China Travel Diary</strong><br><br>From the Forbidden City to the misty hills of Guizhou, from Chengdu's playful warmth to Hangzhou's still lakes, you traced China's soul, city by city. With your love by your side, you wandered old towns, climbed mountains, sipped tea in ancient courtyards, and laughed by the sea. Every stop became a brushstroke in a vivid, endless journey — one that turned a foreign land into a home you carry with you.<br><em>And your map is only just beginning to fill.</em></div><div class="cake-trigger" id="cakeTrigger">🎂</div></div><button class="back-btn" id="backFromTravel">← Back to Earth</button></div></div>
+
+            <!-- 生日结尾页（烟花动效修复） -->
+            <div class="page page-8" id="page8">
+                <canvas id="fireworkCanvas"></canvas>
+                <div class="birthday-scene">
+                    <h1 class="birthday-title">happy birthday lenni</h1>
+                    <p class="birthday-desc" id="birthdayDesc">May this year be full of wonders.</p>
+                    <p class="click-hint" id="clickHint">✨ click the flame ✨</p>
+                    <div class="cake-wrapper" id="cakeWrapper">
+                        <div class="cake-tier top">
+                            <div class="candle-holder"><div class="candle-flame" id="candleFlame"></div><div class="candle-stick" style="width:16px;height:48px;background:linear-gradient(180deg,#FFFDFB,#FEF5F0,#FDE8DD,#FDF0E8,#FFFDFB);border-radius:3px 3px 1px 1px;box-shadow:0 3px 6px rgba(180,140,110,0.2);"></div></div>
+                            <div class="cherry"></div><div class="cherry two"></div><div class="cream-stripe top-stripe"></div>
+                        </div>
+                        <div class="cake-tier middle"><div class="cream-stripe mid"></div></div>
+                        <div class="cake-tier"><div class="cream-stripe bottom"></div></div>
+                        <div class="cake-plate"></div>
+                    </div>
+                    <div class="final-text birthday-poem" id="finalText">Twenty-one years of curiosity, courage, and wonder —<br>from the little boy in Germany reaching for the sky,<br>to the traveler who speaks the world's languages,<br>builds AI puzzles, writes books, and loves deeply.<br><br>Every path led you here:<br>ready to turn the next page,<br>to dream bigger, wander farther,<br>and keep painting the world with your light.<br><br><em>Your story is still being written —<br>and the best chapters are yet to come.</em></div>
+                    <button class="back-btn" id="backFromBirthday" style="position:absolute;bottom:1vh;z-index:10;">← Back to Earth</button>
+                </div>
+            </div>
+        </div>
+        <div class="fly-overlay" id="flyOverlay"><div class="fly-sky" id="flySky"><div class="fly-plane-wrapper" id="flyPlaneWrapper"><span class="mini-plane">✈️</span><span class="kid-on-plane">🧒🏻</span></div><div class="fly-text" id="flyText"></div></div></div>
+    </div>
+
+    <script type="importmap">{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }</script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // 语言切换功能
+        const languages = {
+            zh: {
+                mainTitle: "Lenni的人生地图",
+                subtitleCn: "探索我的世界足迹",
+                subtitleEn: "Explore My World Footprints",
+                hintText: "点击地球上的标记开始探索",
+                orderHint: "建议按时间顺序游览",
+                germanyTitle: "德国 · 学术之旅",
+                germanyDesc: "在德国的学术生活",
+                germanyPoem: "在莱茵河畔的古堡中，\n我追寻着知识的足迹，\n每一页书卷都承载着梦想，\n每一堂课都点亮着未来。",
+                switzerlandTitle: "瑞士 · 阿尔卑斯山",
+                switzerlandDesc: "瑞士的自然风光",
+                switzerlandPoem: "瑞士实习：你的AI冒险 ✨\n你用家乡的薄雾换来瑞士的阳光，\n把对代码的热爱揣进口袋。\n在公司，你将AI编织进合同审查——\n把乏味的工作变成锐利、新颖的东西。\n\n同事们对你的聪明想法微笑，\n在你的代码行中发现未来。\n多年后，那个小小的实习火花\n绽放成稳定的伙伴关系。\n\n从那个好奇的实习生穿着霓虹衬衫，\n到成为可靠的伙伴带来影响——\n瑞士不仅给了你那城堡般的景色。\n它给了你科技故事的第一章。",
+                franceTitle: "法国 · 浪漫之都",
+                franceDesc: "巴黎的艺术与文化",
+                francePoem: "你的法国时光 ✨\n你独自在阳光普照的法国街道漫步，\n运河金光闪闪，山脉低语柔和。\n你爱上了烘焙饼干，\n揉面直到拇指酸痛，\n拍下巧克力屑的无尽自拍——\n每一个都是欢乐的小庆祝。\n\n你不仅仅是观光客。\n你坐在法国教室里，\n学习你所热爱的那个地方的语言，\n一个词，一个句子，一个“Bonjour”一次。\n\n法国给了你不仅仅是美丽的景色和温暖的饼干。\n它给了你新的声音，\n新的爱好，\n以及一颗在世界上感觉更自在的心。",
+                spainTitle: "西班牙 · 热情国度",
+                spainDesc: "西班牙的文化遗产",
+                spainPoem: "你的西班牙时光 ✨\n你漫步巴塞罗那的璀璨夜晚，\n高迪梦幻般的建筑照亮黑暗。\n白天，你学习西班牙语，和新朋友欢笑，\n让城市的金色光芒渗入你的骨髓。\n你爱上了每一个角落，\n甚至发誓有一天会回来定居。",
+                chessAchievement: "你的国际象棋谜题书 🎯\n早在旅程的某个时刻或之前，\n你十几岁的求知欲绽放出非凡的东西。\n从构建AI到制作超过2000万国际象棋谜题，\n到看到它们作为五星级书出版——\n你把安静的深夜\n变成连大师都钦佩的东西。",
+                chinaTitle: "中国 · 家乡",
+                chinaDesc: "中国的传统文化",
+                chinaPoem: "长城见证了历史的长河，\n故宫藏着帝王的秘密，\n长江黄河孕育了华夏文明，\n这里是我的根，我的魂。",
+                chinaSummary: "长城见证了历史的长河，<br>故宫藏着帝王的秘密，<br>长江黄河孕育了华夏文明，<br>这里是我的根，我的魂。",
+                chinaStage1: "<strong>华东理工大学</strong><span class=\"uni-name\">华东理工大学</span><br>你步入了上海的喧嚣，<br>友情迅速绽放，爱情也悄悄靠近。<br>你的中国篇章从这里开始，<br>明亮而温暖，充满新奇。",
+                chinaStage2: "<strong>复旦大学</strong><span class=\"uni-name\">复旦大学</span><br>你用AI继续构建棋局，<br>数百万次落子变成三本新书。<br>在清华的夏校中你学习LLM，<br>心中种下了静静生长的梦想。",
+                chinaStage3: "<strong>南京大学</strong><span class=\"uni-name\">南京大学</span><br>你与爱人在小窝中慢慢定居，<br>一起探索江河山川。<br>每个风景在她身边更明亮，<br>每段记忆都如阳光映水。",
+                chinaStage4: "<strong>清华大学</strong><span class=\"uni-name\">清华大学</span><br>你带着团队启动科研计划，<br>和伙伴一起造机器人。<br>深夜的头脑风暴，<br>让你把知识变成了新的力量。",
+                travelTitle: "旅行足迹",
+                travelDesc: "探索世界的精彩瞬间",
+                birthdayTitle: "生日快乐！",
+                birthdayDesc: "愿你的人生充满精彩",
+                birthdayHint: "✨ 点击火焰 ✨",
+                travelSummary: "从故宫到贵州的云雾山，从成都的暖阳到杭州的静湖，你带着爱人走过古街老巷，登山赏水。每一站都成为画卷里的一笔，让这个世界变得更真实、更温暖。",
+                finalText: "二十一年的好奇、勇气与温柔——<br>从德国那个伸向天空的小男孩，<br>到懂得用语言、科技、棋盘和爱写故事的你。<br><br>每一条路都带你来到这里：<br>准备翻开下一页，<br>梦想更大，走得更远，<br>继续用你的光，点亮这个世界。<br><br><em>你的故事还在继续写——<br>最好的章节，还在前方。</em>",
+                backButton: "← 返回地球",
+                labelGermany: "德国",
+                labelSwitzerland: "瑞士",
+                labelFrance: "法国",
+                labelSpain: "西班牙",
+                labelChina: "中国",
+                birthdayPoem: "二十二岁的你，\n正站在人生的十字路口，\n愿你勇敢前行，\n创造属于自己的精彩。"
+            },
+            en: {
+                mainTitle: "Lenni's Life Map",
+                subtitleCn: "Explore · Experience · Growth · Future",
+                subtitleEn: "Every place, a story. Every step, a part of you.",
+                hintText: "Click on the markers on the globe to start exploring",
+                orderHint: "Recommended to visit in chronological order",
+                germanyTitle: "Germany · Academic Journey",
+                germanyDesc: "Academic life in Germany",
+                germanyPoem: "In the castles along the Rhine,\nI follow the footsteps of knowledge,\nEvery page carries dreams,\nEvery class lights up the future.",
+                switzerlandTitle: "Switzerland · The Alps",
+                switzerlandDesc: "Natural scenery of Switzerland",
+                switzerlandPoem: "Switzerland Internship:\nYour AI Adventure ✨\nYou traded hometown mist for Swiss sunlight,\ntucking your love for code right into your pocket.\nAt the company, you wove AI into contract reviews—\nturning tedious work into something sharp, something new.\n\nColleagues smiled at your bright ideas,\nspotting the future in your lines of code.\nYears later, that small internship spark\nbloomed into a real partnership, steady and bold.\n\nFrom a curious intern in that neon shirt,\nto a trusted partner turning ideas into impact—\nSwitzerland didn't just give you that castle view.\nIt gave you the first chapter of your big tech story.",
+                franceTitle: "France · City of Romance",
+                franceDesc: "Art and culture of Paris",
+                francePoem: "Your French Days ✨\nYou wandered alone through sunlit French streets,\nwhere the canals glowed gold and the mountains hummed soft.\nYou fell in love with baking cookies,\nkneading dough until your thumb was sore,\nand snapping endless selfies with your chocolate chips —\neach one a little celebration of joy.\n\nYou didn't just sightsee, though.\nYou sat in French classrooms,\nlearning the language of the place you'd grown to love,\none word, one sentence, one \"bonjour\" at a time.\n\nFrance gave you more than pretty views and warm cookies.\nIt gave you a new voice,\na new hobby,\nand a heart that felt a little more at home in the world.",
+                spainTitle: "Spain · Passionate Nation",
+                spainDesc: "Cultural heritage of Spain",
+                spainPoem: "Your Spanish Days ✨\nYou wandered Barcelona's glowing nights,\nwhere Gaudí's dreamlike buildings lit up the dark.\nBy day, you learned Spanish, laughed with new friends,\nand let the city's golden light seep into your bones.\nYou fell in love with every corner,\neven vowing you'd return here one day to stay.",
+                chessAchievement: "Your Chess Puzzle Book 🎯\nLong before or somewhere along your journey,\nyour teen curiosity bloomed into something extraordinary.\nFrom building an AI to crafting over 20 million chess puzzles,\nto seeing them published as a 5-star book —\nyou turned quiet late nights\ninto something even masters admire.",
+                chinaTitle: "China · Homeland",
+                chinaDesc: "Traditional Chinese culture",
+                chinaPoem: "The Great Wall witnesses the long river of history,\nThe Forbidden City hides imperial secrets,\nThe Yangtze and Yellow Rivers nurtured Chinese civilization,\nThis is my root, my soul.",
+                chinaSummary: "The Great Wall witnesses the long river of history, <br>The Forbidden City hides imperial secrets, <br>The Yangtze and Yellow Rivers nurtured Chinese civilization, <br>This is my root, my soul.",
+                chinaStage1: "<strong>East China University of Science and Technology</strong><span class=\"uni-name\">华东理工大学</span><br>You stepped into Shanghai's bustle,<br>where friendships bloomed fast, and love found you too.<br>Your China story began here,<br>bright and warm, full of new firsts.",
+                chinaStage2: "<strong>Fudan University</strong><span class=\"uni-name\">复旦大学</span><br>You kept building chess puzzles with AI,<br>turning millions of moves into three more books.<br>At Tsinghua's summer school, you studied LLMs,<br>and left with a quiet dream rooted in the campus light.",
+                chinaStage3: "<strong>Nanjing University</strong><span class=\"uni-name\">南京大学</span><br>You and your love settled into a little nest,<br>exploring China's rivers and hills together.<br>Every view felt brighter with her beside you,<br>and every memory glowed like sunlight on water.",
+                chinaStage4: "<strong>Tsinghua University</strong><span class=\"uni-name\">清华大学</span><br>You launched a research project backed by the school,<br>built robots with your team,<br>and turned late-night brainstorming into a partnership.<br>Tsinghua didn't just give you knowledge —<br>it gave you the space to build something new.",
+                travelTitle: "Travel Footprints",
+                travelDesc: "Explore the wonderful moments of the world",
+                birthdayTitle: "Happy Birthday!",
+                birthdayDesc: "May your life be full of wonders",
+                birthdayHint: "✨ click the flame ✨",
+                travelSummary: "From the Forbidden City to misty Guizhou hills, from Chengdu's warm glow to Hangzhou's quiet lakes, you traced China's soul city by city. With your love by your side, you wandered old towns, climbed mountains, sipped tea in ancient courtyards, and laughed by the sea.",
+                finalText: "Twenty-one years of curiosity, courage, and wonder —<br>from the little boy in Germany reaching for the sky,<br>to the traveler who speaks the world's languages,<br>builds AI puzzles, writes books, and loves deeply.<br><br>Every path led you here:<br>ready to turn the next page,<br>to dream bigger, wander farther,<br>and keep painting the world with your light.<br><br><em>Your story is still being written —<br>and the best chapters are yet to come.</em>",
+                backButton: "← Back to Earth",
+                labelGermany: "Germany",
+                labelSwitzerland: "Switzerland",
+                labelFrance: "France",
+                labelSpain: "Spain",
+                labelChina: "China",
+                birthdayPoem: "You at twenty-two,\nStanding at life's crossroads,\nMay you bravely move forward,\nCreate your own wonderful life."
+            }
+        };
+
+        let currentLanguage = 'en'; // 默认英文
+
+        function switchLanguage() {
+            currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
+            updateLanguage();
+            updateLanguageButton();
+        }
+
+        function updateLanguage() {
+            const lang = languages[currentLanguage];
+
+            // 更新标题
+            document.querySelector('.main-title').textContent = lang.mainTitle;
+            document.querySelector('.subtitle-cn').textContent = lang.subtitleCn;
+            document.querySelector('.subtitle-en').textContent = lang.subtitleEn;
+            document.querySelector('.hint-text').textContent = lang.hintText;
+            document.querySelector('.order-hint').textContent = lang.orderHint;
+
+            // 更新国家页面标题
+            document.querySelector('.germany-title').textContent = lang.germanyTitle;
+            document.querySelector('.germany-poem').innerHTML = lang.germanyPoem.replace(/\n/g, '<br>');
+
+            document.querySelector('.switzerland-title').textContent = lang.switzerlandTitle;
+            document.querySelector('.switzerland-poem').innerHTML = lang.switzerlandPoem.replace(/\n/g, '<br>');
+
+            document.querySelector('.france-title').textContent = lang.franceTitle;
+            document.querySelector('.france-poem').innerHTML = lang.francePoem.replace(/\n/g, '<br>');
+
+            document.querySelector('.spain-title').textContent = lang.spainTitle;
+            document.querySelector('.spain-poem').innerHTML = lang.spainPoem.replace(/\n/g, '<br>');
+            document.querySelector('.chess-achievement').innerHTML = lang.chessAchievement.replace(/\n/g, '<br>');
+
+            document.querySelector('.china-title').textContent = lang.chinaTitle;
+            document.querySelector('.china-poem-full').innerHTML = lang.chinaSummary;
+            document.querySelector('.stage-poem-1').innerHTML = lang.chinaStage1;
+            document.querySelector('.stage-poem-2').innerHTML = lang.chinaStage2;
+            document.querySelector('.stage-poem-3').innerHTML = lang.chinaStage3;
+            document.querySelector('.stage-poem-4').innerHTML = lang.chinaStage4;
+
+            // 更新旅行页面
+            document.querySelector('.travel-title').textContent = lang.travelTitle;
+            document.querySelector('.travel-desc').textContent = lang.travelDesc;
+            document.querySelector('.travel-summary').innerHTML = lang.travelSummary;
+
+            // 更新生日页面
+            document.querySelector('.birthday-title').textContent = lang.birthdayTitle;
+            document.getElementById('birthdayDesc').textContent = lang.birthdayDesc;
+            document.getElementById('clickHint').textContent = lang.birthdayHint;
+            document.getElementById('finalText').innerHTML = lang.finalText;
+
+            // 更新返回按钮
+            document.querySelectorAll('.back-btn').forEach(btn => btn.textContent = lang.backButton);
+
+            // 更新首页国家标签
+            labelElements.germany.innerHTML = `<span class="order-num">①</span><span class="label-dot germany"></span>${lang.labelGermany}`;
+            labelElements.switzerland.innerHTML = `<span class="order-num">②</span><span class="label-dot switzerland"></span>${lang.labelSwitzerland}`;
+            labelElements.france.innerHTML = `<span class="order-num">③</span><span class="label-dot france"></span>${lang.labelFrance}`;
+            labelElements.spain.innerHTML = `<span class="order-num">④</span><span class="label-dot spain"></span>${lang.labelSpain}`;
+            labelElements.china.innerHTML = `<span class="order-num">⑤</span><span class="label-dot china"></span>${lang.labelChina}`;
+        }
+
+        function updateLanguageButton() {
+            const button = document.getElementById('languageSwitch');
+            button.textContent = currentLanguage === 'zh' ? 'EN' : '中';
+            button.title = currentLanguage === 'zh' ? 'Switch to English' : '切换到中文';
+        }
+
+        // 初始化语言切换按钮事件
+        document.addEventListener('DOMContentLoaded', function() {
+            const languageSwitch = document.getElementById('languageSwitch');
+            languageSwitch.addEventListener('click', switchLanguage);
+            updateLanguageButton();
+            updateLanguage();
+        });
+
+        const pagesWrapper = document.getElementById('pagesWrapper');
+        const flyOverlay = document.getElementById('flyOverlay');
+        const flySky = document.getElementById('flySky');
+        const flyText = document.getElementById('flyText');
+        let animating = false;
+
+        function goToPage(cls) { pagesWrapper.className = 'pages-wrapper ' + cls; window.scrollTo({ top: 0, behavior: 'instant' }); }
+        function returnToGlobe() { pagesWrapper.className = 'pages-wrapper'; window.scrollTo({ top: 0, behavior: 'instant' }); }
+
+        function startFlight(bgUrl, text, targetClass) {
+            if (animating) return; animating = true;
+            flySky.style.backgroundImage = `url('${bgUrl}'), linear-gradient(180deg, #b0c4de 0%, #e6f0fa 100%)`;
+            flyText.textContent = text; flyOverlay.classList.add('active');
+            setTimeout(() => { flyText.textContent = 'Almost there…'; }, 1500);
+            setTimeout(() => { flyOverlay.classList.remove('active'); animating = false; goToPage(targetClass); }, 3000);
+        }
+        function startTrain(bgUrl, text, targetClass) {
+            if (animating) return; animating = true;
+            flySky.style.backgroundImage = `url('${bgUrl}'), linear-gradient(180deg, #b0c4de 0%, #e6f0fa 100%)`;
+            flyText.textContent = text; flyOverlay.classList.add('active');
+            setTimeout(() => { flyText.textContent = '前方到站…'; }, 1500);
+            setTimeout(() => { flyOverlay.classList.remove('active'); animating = false; goToPage(targetClass); }, 3000);
+        }
+
+        function resetBirthdayScene() {
+            exploded = false;
+            fireworks = [];
+            cakeWrapper.classList.remove('exploded');
+            cakeWrapper.style.transform = 'translate(-50%, -50%) scale(1)';
+            candleFlame.style.animation = 'flicker 0.3s infinite alternate';
+            candleFlame.style.opacity = '1';
+            candleFlame.style.boxShadow = '0 0 20px rgba(255,180,60,0.7),0 0 45px rgba(255,150,30,0.4)';
+            clickHint.style.opacity = '1';
+            clickHint.textContent = languages[currentLanguage].birthdayHint;
+            finalText.classList.remove('visible');
+            document.querySelectorAll('.confetti-piece').forEach(piece => piece.remove());
+        }
+
+        document.getElementById('backFromGermany').addEventListener('click', returnToGlobe);
+        document.getElementById('backFromSwiss').addEventListener('click', returnToGlobe);
+        document.getElementById('backFromFrance').addEventListener('click', returnToGlobe);
+        document.getElementById('backFromSpain').addEventListener('click', returnToGlobe);
+        document.getElementById('backFromChina').addEventListener('click', returnToGlobe);
+        document.getElementById('backFromTravel').addEventListener('click', returnToGlobe);
+        document.getElementById('backFromBirthday').addEventListener('click', returnToGlobe);
+
+        document.getElementById('planeToSwiss').addEventListener('click',(e)=>{e.stopPropagation();startFlight('assets/images/fly-switzerland.jpg','Flying to Switzerland…','page-3-active');});
+        document.getElementById('planeToFrance').addEventListener('click',(e)=>{e.stopPropagation();startFlight('assets/images/fly-france.jpg','Flying to France…','page-4-active');});
+        document.getElementById('planeToSpain').addEventListener('click',(e)=>{e.stopPropagation();startFlight('assets/images/fly-spain.jpg','Flying to Spain…','page-5-active');});
+        document.getElementById('planeToChina').addEventListener('click',(e)=>{e.stopPropagation();startFlight('assets/images/fly-china.jpg','Flying to China…','page-6-active');});
+        document.getElementById('trainToTravel').addEventListener('click',(e)=>{e.stopPropagation();startTrain('assets/images/train-china.jpg','Crossing China\'s Vast Land…','page-7-active');});
+        document.getElementById('cakeTrigger').addEventListener('click',(e)=>{e.stopPropagation();resetBirthdayScene();startTrain('assets/images/fly-birthday.jpg','🎂 Happy Birthday…','page-8-active');});
+
+        const globeContainer = document.getElementById('globe-container');
+        const scene = new THREE.Scene(); scene.background = new THREE.Color('#FFF8F0');
+        const camera = new THREE.PerspectiveCamera(50, globeContainer.clientWidth / globeContainer.clientHeight, 0.5, 60);
+        camera.position.set(3.5, 2.8, 9.5);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(globeContainer.clientWidth, globeContainer.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        globeContainer.appendChild(renderer.domElement);
+        scene.add(new THREE.AmbientLight('#FFF5EC', 2.8));
+        scene.add(new THREE.HemisphereLight('#FFF8F0', '#C4A882', 1.6));
+        const sun = new THREE.DirectionalLight('#FFFDF5', 4.5); sun.position.set(8, 6, 5); scene.add(sun);
+        const earthGroup = new THREE.Group(); scene.add(earthGroup);
+        const earthRadius = 3.2;
+        const earthGeom = new THREE.SphereGeometry(earthRadius, 96, 72);
+        const fallbackTex = new THREE.CanvasTexture((() => { const c = document.createElement('canvas'); c.width = 1024; c.height = 512; c.getContext('2d').fillStyle = '#F5E8D8'; c.getContext('2d').fillRect(0, 0, 1024, 512); return c; })());
+        fallbackTex.colorSpace = THREE.SRGBColorSpace;
+        const earthMat = new THREE.MeshStandardMaterial({ map: fallbackTex, roughness: 0.65, color: new THREE.Color('#FFFDF8') });
+        const earthMesh = new THREE.Mesh(earthGeom, earthMat); earthGroup.add(earthMesh);
+        new THREE.TextureLoader().load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg', tex => { tex.colorSpace = THREE.SRGBColorSpace; earthMat.map = tex; earthMat.needsUpdate = true; });
+        earthGroup.add(new THREE.Mesh(new THREE.SphereGeometry(earthRadius + 0.12, 64, 48), new THREE.ShaderMaterial({ vertexShader: `varying vec3 vNormal; varying vec3 vWorldPosition; void main(){ vec4 wPos=modelMatrix*vec4(position,1.0); vWorldPosition=wPos.xyz; vNormal=normalize(mat3(modelMatrix)*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`, fragmentShader: `varying vec3 vNormal; varying vec3 vWorldPosition; void main(){ vec3 vDir=normalize(cameraPosition-vWorldPosition); float f=pow(1.0-abs(dot(vDir,vNormal)),3.5); gl_FragColor=vec4(mix(vec3(1.0,0.94,0.85),vec3(0.96,0.82,0.68),f),f*0.28); }`, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })));
+
+        const countriesData = [{ name: 'germany', lat: 51, lon: 10, color: '#E8947A' }, { name: 'switzerland', lat: 47, lon: 8, color: '#A8C9B8' }, { name: 'france', lat: 47, lon: 2, color: '#D5A8C9' }, { name: 'spain', lat: 40, lon: -4, color: '#F0C78E' }, { name: 'china', lat: 35, lon: 105, color: '#E8B4A0' }];
+        function latLonToVec3(lat, lon, r) { const phi = (90 - lat) * Math.PI / 180; return new THREE.Vector3().setFromSpherical(new THREE.Spherical(r, phi, lon * Math.PI / 180)); }
+        const markersData = [], hitSpheres = [], markerPositions = [];
+        countriesData.forEach(c => {
+            const pos = latLonToVec3(c.lat, c.lon, earthRadius + 0.04); markerPositions.push(pos.clone());
+            const g = new THREE.Group(); g.position.copy(pos); g.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), pos.clone().normalize());
+            const core = new THREE.Mesh(new THREE.SphereGeometry(0.07, 20, 14), new THREE.MeshStandardMaterial({ color: c.color, emissive: c.color, emissiveIntensity: 0.7 })); g.add(core);
+            g.add(new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.025, 16, 40), new THREE.MeshStandardMaterial({ color: c.color, emissive: c.color, emissiveIntensity: 0.5, transparent: true, opacity: 0.75 })));
+            g.add(new THREE.Mesh(new THREE.TorusGeometry(0.19, 0.018, 12, 36), new THREE.MeshStandardMaterial({ color: c.color, emissive: c.color, emissiveIntensity: 0.35, transparent: true, opacity: 0.5 })));
+            const hit = new THREE.Mesh(new THREE.SphereGeometry(0.38, 16, 16), new THREE.MeshBasicMaterial({ visible: false })); hit.userData = { country: c.name }; g.add(hit); hitSpheres.push(hit);
+            earthGroup.add(g); markersData.push({ name: c.name, group: g, worldPos: new THREE.Vector3(), core });
+        });
+        for (let i = 0; i < markerPositions.length - 1; i++) {
+            const p1 = markerPositions[i], p2 = markerPositions[i + 1];
+            const mid = p1.clone().add(p2).multiplyScalar(0.5).normalize().multiplyScalar(earthRadius + 0.08 * 1.06);
+            const curve = new THREE.QuadraticBezierCurve3(p1.clone().normalize().multiplyScalar(earthRadius + 0.08), mid, p2.clone().normalize().multiplyScalar(earthRadius + 0.08));
+            const pts = curve.getPoints(40);
+            const geo = new THREE.BufferGeometry().setFromPoints(pts);
+            const mat = new THREE.LineDashedMaterial({ color: 0xC8A882, dashSize: 0.25, gapSize: 0.18, transparent: true, opacity: 0.7 });
+            const line = new THREE.Line(geo, mat); line.computeLineDistances();
+            earthGroup.add(line);
+        }
+        const starsGeo = new THREE.BufferGeometry(); const starsPos = new Float32Array(500 * 3);
+        for (let i = 0; i < 500; i++) { const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1), r = 7 + Math.random() * 14; starsPos[i * 3] = r * Math.sin(ph) * Math.cos(th); starsPos[i * 3 + 1] = r * Math.sin(ph) * Math.sin(th); starsPos[i * 3 + 2] = r * Math.cos(ph); }
+        starsGeo.setAttribute('position', new THREE.BufferAttribute(starsPos, 3));
+        const stars = new THREE.Points(starsGeo, new THREE.PointsMaterial({ color: '#FFF5E8', size: 0.28, blending: THREE.AdditiveBlending, transparent: true, opacity: 0.7 })); scene.add(stars);
+        const controls = new OrbitControls(camera, renderer.domElement); controls.target.set(0, 0.15, 0); controls.enableDamping = true; controls.autoRotate = true; controls.autoRotateSpeed = 0.35; controls.minDistance = 6; controls.maxDistance = 14; controls.enablePan = false; controls.minPolarAngle = 0.5; controls.maxPolarAngle = 2.2; controls.minAzimuthAngle = -0.2; controls.maxAzimuthAngle = 2.0; controls.update();
+        controls.addEventListener('change', () => { const a = controls.getAzimuthalAngle(); if (a >= controls.maxAzimuthAngle - 0.08 && controls.autoRotateSpeed > 0) controls.autoRotateSpeed *= -1; else if (a <= controls.minAzimuthAngle + 0.08 && controls.autoRotateSpeed < 0) controls.autoRotateSpeed *= -1; });
+
+        function worldToScreen(wp) { const v = wp.clone().project(camera); const hw = globeContainer.clientWidth / 2, hh = globeContainer.clientHeight / 2; return { x: (v.x * hw) + hw, y: -(v.y * hh) + hh, visible: v.z < 1 && v.z > 0 }; }
+        function isBack(wp) { return wp.clone().normalize().dot(camera.position.clone().normalize()) < -0.05; }
+        const raycaster = new THREE.Raycaster(); let pd = new THREE.Vector2(), dragging = false;
+        const labelElements = { germany: document.getElementById('label-germany'), switzerland: document.getElementById('label-switzerland'), france: document.getElementById('label-france'), spain: document.getElementById('label-spain'), china: document.getElementById('label-china') };
+        renderer.domElement.addEventListener('pointerdown', e => { pd.set(e.clientX, e.clientY); dragging = false; });
+        renderer.domElement.addEventListener('pointermove', e => { if (Math.abs(e.clientX - pd.x) > 4 || Math.abs(e.clientY - pd.y) > 4) dragging = true; });
+        renderer.domElement.addEventListener('pointerup', e => {
+            if (dragging) return;
+            const rect = renderer.domElement.getBoundingClientRect();
+            const mouse = new THREE.Vector2((e.clientX - rect.left) / rect.width * 2 - 1, -((e.clientY - rect.top) / rect.height * 2 - 1));
+            raycaster.setFromCamera(mouse, camera); const ints = raycaster.intersectObjects(hitSpheres);
+            if (ints.length > 0) {
+                const country = ints[0].object.userData.country;
+                if (country === 'germany') goToPage('page-2-active');
+                else if (country === 'switzerland') goToPage('page-3-active');
+                else if (country === 'france') goToPage('page-4-active');
+                else if (country === 'spain') goToPage('page-5-active');
+                else if (country === 'china') goToPage('page-6-active');
+            }
+        });
+
+        function animate() { requestAnimationFrame(animate); controls.update(); markersData.forEach(m => m.group.getWorldPosition(m.worldPos)); stars.rotation.y += 0.001; markersData.forEach(m => { const el = labelElements[m.name]; if (!el) return; const sp = worldToScreen(m.worldPos); if (sp.visible && !isBack(m.worldPos)) { el.classList.remove('hidden-label'); el.style.left = sp.x + 'px'; el.style.top = (sp.y - 22) + 'px'; } else { el.classList.add('hidden-label'); } }); renderer.render(scene, camera); }
+        window.addEventListener('resize', () => { camera.aspect = globeContainer.clientWidth / Math.max(globeContainer.clientHeight, 1); camera.updateProjectionMatrix(); renderer.setSize(globeContainer.clientWidth, globeContainer.clientHeight); });
+        camera.position.copy(latLonToVec3(40, 8, 9.5)); controls.target.set(0, 0.15, 0); controls.update();
+        requestAnimationFrame(animate);
+
+        // 照片墙生成
+        const cities = [
+            { name: "Beijing", img: "assets/images/beijing.jpg" },
+            { name: "Chengdu", img: "assets/images/chengdu.jpg" },
+            { name: "Chengde", img: "assets/images/chengde.jpg" },
+            { name: "Guiyang", img: "assets/images/guiyang.jpg" },
+            { name: "Hangzhou", img: "assets/images/hangzhou.jpg" },
+            { name: "Jinan", img: "assets/images/jinan.jpg" },
+            { name: "Jeju", img: "assets/images/jeju.jpg" },
+            { name: "Kaili", img: "assets/images/kaili.jpg" },
+            { name: "Nanjing", img: "assets/images/nanjing.jpg" },
+            { name: "Liaoning Chaoyang", img: "assets/images/liaoning-chaoyang.jpg" },
+            { name: "Qinhuangdao", img: "assets/images/qinhuangdao.jpg" },
+            { name: "Shenzhen", img: "assets/images/shenzhen.jpg" },
+            { name: "Tangshan", img: "assets/images/tangshan.jpg" },
+            { name: "Tianjin", img: "assets/images/tianjin.jpg" },
+            { name: "Wuhan", img: "assets/images/wuhan.jpg" },
+            { name: "Hong Kong", img: "assets/images/hong-kong.jpg" },
+            { name: "Yangzhou", img: "assets/images/yangzhou.jpg" },
+            { name: "Yiwu", img: "assets/images/yiwu.jpg" },
+            { name: "Zhangqiu", img: "assets/images/zhangqiu.jpg" },
+            { name: "Changsha", img: "assets/images/changsha.jpg" },
+            { name: "Chongqing", img: "assets/images/chongqing.jpg" },
+            { name: "Zhoushan", img: "assets/images/zhoushan.jpg" }
+        ];
+        const pw = document.getElementById('photoWall');
+        cities.forEach(city => { const card = document.createElement('div'); card.className = 'city-card'; card.style.transform = `rotate(${(Math.random() - 0.5) * 8}deg)`; const imgStyle = (city.img.includes('guiyang.jpg') || city.img.includes('wuhan.jpg')) ? ' style="object-position: top;"' : ''; card.innerHTML = `<div class="card-img"><img src="${city.img}" alt="${city.name}"${imgStyle}></div><div class="card-name">${city.name}</div>`; pw.appendChild(card); });
+
+        // 生日蜡烛与烟花逻辑（与尾页源文件完全同步）
+        const cakeWrapper = document.getElementById('cakeWrapper');
+        const candleFlame = document.getElementById('candleFlame');
+        const clickHint = document.getElementById('clickHint');
+        const finalText = document.getElementById('finalText');
+        const canvas = document.getElementById('fireworkCanvas');
+        const ctx = canvas.getContext('2d');
+        let exploded = false;
+        let fireworks = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        function spawnConfetti() {
+            const rect = cakeWrapper.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const colors = ['#FFB3B3', '#FFD4A8', '#FFE8B0', '#FFC8D6', '#D5C8E0', '#C8E0D5', '#FFE4C4', '#F8C8D8', '#FFF5C0'];
+            for (let i = 0; i < 100; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = cx + 'px';
+                piece.style.top = cy + 'px';
+                piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.width = (8 + Math.random() * 14) + 'px';
+                piece.style.height = (6 + Math.random() * 10) + 'px';
+                piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 200 + Math.random() * 500;
+                const dx = Math.cos(angle) * dist;
+                const dy = Math.sin(angle) * dist - 300 - Math.random() * 400;
+                piece.style.setProperty('--dx', dx + 'px');
+                piece.style.setProperty('--dy', dy + 'px');
+                piece.style.setProperty('--dx30', (dx * 0.3) + 'px');
+                piece.style.setProperty('--dy30', (dy * 0.3) + 'px');
+                piece.style.setProperty('--r', (Math.random() * 720 - 360) + 'deg');
+                piece.style.setProperty('--r30', (Math.random() * 360 - 180) + 'deg');
+                piece.style.animation = 'confettiFall ' + (2 + Math.random() * 3) + 's ease-out forwards';
+                document.body.appendChild(piece);
+                setTimeout(() => piece.remove(), 4000);
+            }
+        }
+
+        function spawnFireworks() {
+            const rect = cakeWrapper.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            for (let b = 0; b < 6; b++) {
+                setTimeout(() => {
+                    const bx = cx + (Math.random() - 0.5) * 200;
+                    const by = cy + (Math.random() - 0.5) * 150;
+                    const color = ['#FFB3B3', '#FFD4A8', '#FFE8B0', '#FFC8D6', '#D5C8E0', '#FFF5C0'][Math.floor(Math.random() * 6)];
+                    for (let i = 0; i < 70; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const speed = 3 + Math.random() * 8;
+                        fireworks.push({
+                            x: bx,
+                            y: by,
+                            vx: Math.cos(angle) * speed,
+                            vy: Math.sin(angle) * speed,
+                            life: 1,
+                            decay: 0.008 + Math.random() * 0.02,
+                            color: color,
+                            size: 2 + Math.random() * 4
+                        });
+                    }
+                }, b * 200);
+            }
+        }
+
+        function startContinuousFireworks() {
+            const rect = cakeWrapper.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const interval = setInterval(() => {
+                if (!exploded) {
+                    clearInterval(interval);
+                    return;
+                }
+                const bx = cx + (Math.random() - 0.5) * 400;
+                const by = cy + (Math.random() - 0.5) * 300 - 100;
+                const color = ['#FFB3B3', '#FFD4A8', '#FFE8B0', '#FFC8D6', '#D5C8E0', '#FFF5C0', '#FFDDE4'][Math.floor(Math.random() * 7)];
+                for (let i = 0; i < 50; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = 2 + Math.random() * 6;
+                    fireworks.push({
+                        x: bx,
+                        y: by,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        life: 1,
+                        decay: 0.01 + Math.random() * 0.025,
+                        color: color,
+                        size: 1.5 + Math.random() * 3
+                    });
+                }
+            }, 800);
+            setTimeout(() => clearInterval(interval), 12000);
+        }
+
+        candleFlame.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (exploded) return;
+            exploded = true;
+
+            clickHint.style.opacity = '0';
+            candleFlame.style.animation = 'none';
+            candleFlame.style.opacity = '0';
+            candleFlame.style.boxShadow = 'none';
+            cakeWrapper.classList.add('exploded');
+
+            spawnConfetti();
+            spawnFireworks();
+            setTimeout(() => {
+                finalText.classList.add('visible');
+            }, 600);
+            setTimeout(() => {
+                startContinuousFireworks();
+            }, 2000);
+        });
+
+        function updateFireworks() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            for (let i = fireworks.length-1; i >= 0; i--) {
+                const f = fireworks[i]; f.x += f.vx; f.y += f.vy; f.vy += 0.06; f.life -= f.decay;
+                if (f.life <= 0) { fireworks.splice(i,1); continue; }
+                ctx.beginPath(); ctx.arc(f.x,f.y,3*f.life,0,Math.PI*2);
+                const r = parseInt(f.color.slice(1,3),16), g = parseInt(f.color.slice(3,5),16), b = parseInt(f.color.slice(5,7),16);
+                ctx.fillStyle = `rgba(${r},${g},${b},${f.life})`; ctx.fill();
+            }
+            requestAnimationFrame(updateFireworks);
+        }
+        updateFireworks();
+    </script>
+</body>
+</html>

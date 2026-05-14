@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lenni's Life Map - Life Map</title>
+    <meta name="description" content="An interactive scrapbook-style life map with photos, travel memories, and a birthday ending for Lenni.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="image" href="assets/textures/earth_atmos_2048.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&family=Gaegu:wght@300;400;700&family=Nanum+Pen+Script&family=Noto+Serif+SC:wght@300;400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="app-container">
+        <div class="top-controls">
+            <div class="audio-player collapsed" id="audioPlayer" aria-label="Background music player">
+                <button class="audio-toggle" id="audioToggle" type="button" aria-expanded="false" aria-controls="audioPanel" title="Open music controls">
+                    <span class="audio-toggle__disc">
+                        <span class="audio-toggle__note">♪</span>
+                    </span>
+                </button>
+                <div class="audio-panel" id="audioPanel">
+                    <div class="audio-player__label" id="audioLabel">Birthday Theme</div>
+                    <audio id="backgroundAudio" controls preload="metadata" loop>
+                        <source src="assets/audio/birthday-theme.mp3" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+            </div>
+            <div class="language-switch" id="languageSwitch" title="Switch to Chinese">中</div>
+        </div>
+        <div class="pages-wrapper" id="pagesWrapper">
+            <!-- 首页：地球（标签已修复） -->
+            <div class="page page-1" id="page1">
+                <div id="globe-container"></div>
+                <div class="overlay">
+                    <div class="title-section"><h1 class="main-title">Lenni's Life Map</h1><p class="subtitle-cn">Explore · Experience · Growth · Future</p><p class="subtitle-en">Every place, a story. Every step, a part of you.</p></div>
+                    <div class="hint-section"><p class="hint-text">Click on the markers on the globe to start exploring</p><p class="order-hint">Recommended to visit in chronological order</p></div>
+                </div>
+                <div class="country-label hidden-label" id="label-germany"><span class="order-num">①</span><span class="label-dot germany"></span>Germany</div>
+                <div class="country-label hidden-label" id="label-switzerland"><span class="order-num">②</span><span class="label-dot switzerland"></span>Switzerland</div>
+                <div class="country-label hidden-label" id="label-france"><span class="order-num">③</span><span class="label-dot france"></span>France</div>
+                <div class="country-label hidden-label" id="label-spain"><span class="order-num">④</span><span class="label-dot spain"></span>Spain</div>
+                <div class="country-label hidden-label" id="label-china"><span class="order-num">⑤</span><span class="label-dot china"></span>China</div>
+            </div>
+
+            <!-- Germany Page -->
+            <div class="page page-2" id="page2"><div class="page-inner"><div class="journal-paper"><div class="page-header"><h2 class="page-title forest germany-title">Lenni's Forest Hometown</h2></div><div class="scrapbook-layout">
+                <div class="scrap-item item-1"><div class="tape-piece"></div><div class="photo-frame"><img src="assets/images/germany-swing.jpg" alt="Lenni on a swing"></div><div class="scrap-content germany-copy germany-copy-1"><strong>On the Swing</strong>You pointed up at the sky from your little swing,<br>as if telling the whole world:<br>One day, I'll go and see every place.</div></div>
+                <div class="scrap-item item-2"><div class="tape-piece pink"></div><div class="photo-frame"><img src="assets/images/germany-family.jpg" alt="Family photo"></div><div class="scrap-content germany-copy germany-copy-2"><strong>Home is People</strong>Surrounded by the ones who love you most,<br>you carry this warmth wherever you go.<br>Home is not just a place —<br>it's the people who stay.</div></div>
+                <div class="scrap-item item-3"><div class="tape-piece mint"></div><div class="photo-frame"><img src="assets/images/germany-room.jpg" alt="Quiet room"></div><div class="scrap-content germany-copy germany-copy-3"><strong>Soft Corners</strong>Soft light fills every corner,<br>holding your smallest, sweetest memories.<br>This is where your heart<br>always feels at peace.</div></div>
+                <div class="scrap-item item-4"><div class="tape-piece"></div><div class="photo-frame"><img src="assets/images/germany-rain.jpg" alt="Streets in rain"></div><div class="scrap-content germany-copy germany-copy-4"><strong>Where Stories Begin</strong>Quiet streets, gentle rain,<br>the place where your story began.<br>From here, you walked<br>toward the big, wide world.</div></div>
+                <div class="scrap-item item-5"><div class="tape-piece pink"></div><div class="photo-frame"><img src="assets/images/germany-mist.jpg" alt="Morning mist outside"></div><div class="scrap-content germany-copy germany-copy-5"><strong>Misty Morning</strong>Misty trees outside the window,<br>soft and quiet like a dream.<br>Even then, you knew<br>life held wonderful things ahead.</div></div>
+            </div><div class="plane-trigger" id="planeToSwiss">✈️</div></div><button class="back-btn" id="backFromGermany">← Back to Earth</button></div></div>
+
+            <!-- Switzerland Page -->
+            <div class="page page-3" id="page3"><div class="page-inner"><div class="journal-paper"><div class="page-header"><h2 class="page-title alps switzerland-title">Switzerland · The Alps</h2></div><div class="swiss-single-card"><div class="tape-piece"></div><div class="tape-piece pink"></div><div class="swiss-photo-frame"><img src="assets/images/switzerland-alps.jpg" alt="Lenni on the Alps"></div><div class="swiss-poem switzerland-poem"><strong>Switzerland Internship:<br>Your AI Adventure ✨</strong>You traded hometown mist for Swiss sunlight,<br>tucking your love for code right into your pocket.<br>At the company, you wove AI into contract reviews—<br>turning tedious work into something sharp, something new.<br><br>Colleagues smiled at your bright ideas,<br>spotting the future in your lines of code.<br>Years later, that small internship spark<br>bloomed into a real partnership, steady and bold.<br><br>From a curious intern in that neon shirt,<br>to a trusted partner turning ideas into impact—<br>Switzerland didn't just give you that castle view.<br>It gave you the first chapter of your big tech story.</div></div><div class="plane-trigger" id="planeToFrance">✈️</div></div><button class="back-btn" id="backFromSwiss">← Back to Earth</button></div></div>
+
+            <!-- France Page -->
+            <div class="page page-4" id="page4"><div class="page-inner"><div class="journal-paper"><div class="page-header"><h2 class="page-title france france-title">France · City of Romance</h2></div><div class="france-triple-card"><div class="tape-piece"></div><div class="tape-piece pink"></div><div class="france-photos-row"><div class="france-photo-box"><img src="assets/images/france-baking.jpg" alt="Baking in France"></div><div class="france-photo-box"><img src="assets/images/france-class.jpg" alt="French class"></div><div class="france-photo-box"><img src="assets/images/france-canals.jpg" alt="Golden canals"></div></div><div class="france-poem france-poem"><strong>Your French Days ✨</strong>You wandered alone through sunlit French streets,<br>where the canals glowed gold and the mountains hummed soft.<br>You fell in love with baking cookies,<br>kneading dough until your thumb was sore,<br>and snapping endless selfies with your chocolate chips —<br>each one a little celebration of joy.<br><br>You didn't just sightsee, though.<br>You sat in French classrooms,<br>learning the language of the place you'd grown to love,<br>one word, one sentence, one "bonjour" at a time.<br><br>France gave you more than pretty views and warm cookies.<br>It gave you a new voice,<br>a new hobby,<br>and a heart that felt a little more at home in the world.</div></div><div class="plane-trigger" id="planeToSpain">✈️</div></div><button class="back-btn" id="backFromFrance">← Back to Earth</button></div></div>
+
+            <!-- Spain Page -->
+            <div class="page page-5" id="page5"><div class="page-inner"><div class="journal-paper"><div class="page-header"><h2 class="page-title spain spain-title">Spain · Passionate Nation</h2></div><div class="spain-double-section"><div class="spain-card card-travel"><div class="tape-piece"></div><div class="tape-piece pink"></div><div class="spain-photos-row"><div class="spain-photo-box"><img src="assets/images/spain-gaudi.jpg" alt="Gaudí's Night"></div><div class="spain-photo-box"><img src="assets/images/spain-class.jpg" alt="Spanish class"></div><div class="spain-photo-box"><img src="assets/images/spain-streets.jpg" alt="Golden streets"></div></div><div class="spain-poem spain-poem"><strong>Your Spanish Days ✨</strong>You wandered Barcelona's glowing nights,<br>where Gaudí's dreamlike buildings lit up the dark.<br>By day, you learned Spanish, laughed with new friends,<br>and let the city's golden light seep into your bones.<br>You fell in love with every corner,<br>even vowing you'd return here one day to stay.</div></div><div class="spain-card card-chess"><div class="tape-piece lavender"></div><div class="tape-piece mint"></div><div class="chess-book-photo"><img src="assets/images/spain-chess-book.png" alt="Chess Puzzle Book"></div><div class="chess-achievement"><strong>Your Chess Puzzle Book 🎯</strong>Long before or somewhere along your journey,<br>your teen curiosity bloomed into something extraordinary.<br>From building an AI to crafting over 20 million chess puzzles,<br>to seeing them published as a 5-star book —<br>you turned quiet late nights<br>into something even masters admire.</div></div></div><div class="plane-trigger" id="planeToChina">✈️</div></div><button class="back-btn" id="backFromSpain">← Back to Earth</button></div></div>
+
+            <!-- China Academic Page -->
+            <div class="page page-6" id="page6"><div class="page-inner"><div class="journal-paper"><div class="page-header"><h2 class="page-title china china-title">China · Academic Journey</h2></div><div class="china-academic-grid">
+                <div class="stage-card"><div class="stage-badge">01</div><div class="tape-piece"></div><div class="stage-main-photo"><img src="assets/images/ecust.jpg" alt="East China University of Science and Technology"></div><div class="stage-side-photos"><div class="stage-side-photo"><img src="assets/images/ecust-friends.jpg" alt="ECUST friends"></div><div class="stage-side-photo"><img src="assets/images/ecust-campus.jpg" alt="ECUST campus"></div></div><div class="stage-poem stage-poem-1"><strong>East China University of Science and Technology</strong><span class="uni-name">华东理工大学</span><br>You stepped into Shanghai's bustle,<br>where friendships bloomed fast, and love found you too.<br>Your China story began here,<br>bright and warm, full of new firsts.</div></div>
+                <div class="stage-card"><div class="stage-badge">02</div><div class="tape-piece pink"></div><div class="stage-main-photo"><img src="assets/images/fudan.jpg" alt="Fudan University"></div><div class="stage-side-photos"><div class="stage-side-photo"><img src="assets/images/fudan-class.png" alt="Fudan class"></div><div class="stage-side-photo"><img src="assets/images/fudan-summer.jpg" alt="Tsinghua summer school"></div></div><div class="stage-poem stage-poem-2"><strong>Fudan University</strong><span class="uni-name">复旦大学</span><br>You kept building chess puzzles with AI,<br>turning millions of moves into three more books.<br>At Tsinghua's summer school, you studied LLMs,<br>and left with a quiet dream rooted in the campus light.</div></div>
+                <div class="stage-card"><div class="stage-badge">03</div><div class="tape-piece mint"></div><div class="stage-main-photo"><img src="assets/images/nju.jpg" alt="Nanjing University"></div><div class="stage-side-photos"><div class="stage-side-photo"><img src="assets/images/nju-couple.jpg" alt="NJU couple"></div><div class="stage-side-photo"><img src="assets/images/nju-scenery.jpg" alt="NJU scenery"></div></div><div class="stage-poem stage-poem-3"><strong>Nanjing University</strong><span class="uni-name">南京大学</span><br>You and your love settled into a little nest,<br>exploring China's rivers and hills together.<br>Every view felt brighter with her beside you,<br>and every memory glowed like sunlight on water.</div></div>
+                <div class="stage-card"><div class="stage-badge">04</div><div class="tape-piece lavender"></div><div class="stage-main-photo"><img src="assets/images/tsinghua.jpg" alt="Tsinghua University" style="object-position: top;"></div><div class="stage-side-photos"><div class="stage-side-photo"><img src="assets/images/tsinghua-lab.jpg" alt="Tsinghua lab"></div><div class="stage-side-photo"><img src="assets/images/tsinghua-collab.jpg" alt="Tsinghua collaboration"></div></div><div class="stage-poem china-poem stage-poem-4"><strong>Tsinghua University</strong><span class="uni-name">清华大学</span><br>You launched a research project backed by the school,<br>built robots with your team,<br>and turned late-night brainstorming into a partnership.<br>Tsinghua didn't just give you knowledge —<br>it gave you the space to build something new.</div></div>
+            </div><div class="train-trigger" id="trainToTravel">🚅</div></div><button class="back-btn" id="backFromChina">← Back to Earth</button></div></div>
+
+            <!-- China Travel Page -->
+            <div class="page page-7" id="page7"><div class="page-inner"><div class="journal-paper"><div class="page-header"><h2 class="page-title travel travel-title">China · Travel Diary</h2></div><div class="photo-wall" id="photoWall"></div><div class="travel-summary"><strong>Your China Travel Diary</strong><br><br>From the Forbidden City to the misty hills of Guizhou, from Chengdu's playful warmth to Hangzhou's still lakes, you traced China's soul, city by city. With your love by your side, you wandered old towns, climbed mountains, sipped tea in ancient courtyards, and laughed by the sea. Every stop became a brushstroke in a vivid, endless journey — one that turned a foreign land into a home you carry with you.<br><em>And your map is only just beginning to fill.</em></div><div class="cake-trigger" id="cakeTrigger">🎂</div></div><button class="back-btn" id="backFromTravel">← Back to Earth</button></div></div>
+
+            <!-- 生日结尾页（烟花动效修复） -->
+            <div class="page page-8" id="page8">
+                <canvas id="fireworkCanvas"></canvas>
+                <div class="birthday-scene">
+                    <h1 class="birthday-title">happy birthday lenni</h1>
+                    <p class="birthday-desc" id="birthdayDesc"></p>
+                    <p class="click-hint" id="clickHint">✨ click the flame ✨</p>
+                    <div class="cake-wrapper" id="cakeWrapper">
+                        <div class="cake-glow"></div>
+                        <div class="cake-tier top">
+                            <div class="candle-holder"><div class="candle-flame" id="candleFlame"></div><div class="candle-stick"></div></div>
+                            <div class="cherry"></div><div class="cherry two"></div>
+                            <div class="berry-leaf"></div><div class="berry-leaf two"></div>
+                            <div class="cream-stripe top-stripe"></div>
+                            <div class="cake-pearls top-pearls"></div>
+                            <div class="cake-medallion"></div>
+                        </div>
+                        <div class="cake-tier middle">
+                            <div class="cream-stripe mid"></div>
+                            <div class="cake-ribbon"></div>
+                            <div class="cake-pearls mid-pearls"></div>
+                        </div>
+                        <div class="cake-tier bottom-tier">
+                            <div class="cream-stripe bottom"></div>
+                            <div class="cake-ribbon bottom-ribbon"></div>
+                            <div class="cake-pearls bottom-pearls"></div>
+                        </div>
+                        <div class="cake-plate"></div>
+                    </div>
+                    <div class="final-text birthday-poem" id="finalText">Twenty-one years of curiosity, courage, and wonder —<br>from the little boy in Germany reaching for the sky,<br>to the traveler who speaks the world's languages,<br>builds AI puzzles, writes books, and loves deeply.<br><br>Every path led you here:<br>ready to turn the next page,<br>to dream bigger, wander farther,<br>and keep painting the world with your light.<br><br><em>Your story is still being written —<br>and the best chapters are yet to come.</em></div>
+                    <button class="back-btn" id="backFromBirthday">← Back to Earth</button>
+                </div>
+            </div>
+        </div>
+        <div class="fly-overlay" id="flyOverlay"><div class="fly-sky" id="flySky"><div class="fly-plane-wrapper" id="flyPlaneWrapper"><span class="mini-plane">🚆</span><span class="kid-on-plane">👦🏼</span></div><div class="fly-text" id="flyText"></div></div></div>
+    </div>
+
+    <script src="assets/textures/earth-texture-data.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
